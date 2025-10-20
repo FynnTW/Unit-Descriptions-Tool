@@ -164,6 +164,7 @@ except:
 #GUI setup (PySimpleGUI)
 layout =                [   [sg.Text('Select path to mod: ')],
                             [sg.Input(default_text=modpath, size=(100, 1), key='modpath'), sg.FolderBrowse(), sg.Button('Set', border_width=(3), button_color='#455642', tooltip="Press after selecting a folder or typing a path to confirm, select the modfolder of the mod you want to use")],
+                            [sg.Checkbox('Rome Total War? ', k = 'enablerome', default=False), sg.Checkbox('Add Dummy Line Breaks? ', k = 'enabledummy', default=False)],
                             [sg.Text('Movement speed text: ', size=(17, 1)), sg.Input(default_text=movespeed_text, k = 'movespeedtext'), sg.Checkbox('Enable? ', k = 'enablemovespeed', default=True)],
                             [sg.Text('free_upkeep_unit text: ', size=(17, 1)), sg.Input(default_text=freeupkeep_text, k = 'freeupkeeptext'), sg.Checkbox('Enable? ', k = 'enablefreeupkeep', default=True), sg.Text('unique_unit text: ', size=(17, 1)), sg.Input(default_text=uniqueunit_text, k = 'uniqueunittext'), sg.Checkbox('Enable? ', k = 'enableuniqueunit', default=True), sg.Text('general_unit text: ', size=(17, 1)), sg.Input(default_text=generalunit_text, k = 'generalunittext'), sg.Checkbox('Enable? ', k = 'enablegeneralunit', default=True)],
                             [sg.Text('Range text: '), sg.Input(default_text=range_text, k = 'rangetext', size=(20, 1)), sg.Checkbox('Enable? ', k = 'enablerange', default=True), sg.Text('Ammo text: '), sg.Input(default_text=ammo_text, k = 'ammotext', size=(20, 1)), sg.Checkbox('Enable? ', k = 'enableammo', default=True)],
@@ -208,6 +209,7 @@ path_set = 0
 try:
     eduname = modpath + "\\data\\export_descr_unit.txt"
     dprojectilename = modpath + "\\data\\descr_projectile.txt"
+    dprojectilename_rome = modpath + "\\data\\descr_projectile.new.txt"
     euname = modpath + "\\data\\text\\export_units.txt"
     outputfilename = modpath + "\\data\\text\\export_units_new.txt"
     inputfilename = modpath + "\\data\\text\\export_units_cleaned.txt"
@@ -468,7 +470,9 @@ def eu_replacer(unit, move_speed, free_upkeep, unique_unit, general_unit, accura
                 else:
                     terrain_bonus_descr = ""
                     terrain_malus_descr = ""
-                changedline = "_descr}" + str(lockmorale_descr) + str(morale_descr) + str(morale_res_descr) + str(movespeed_descr) + str(freeupkeep_descr) + str(uniqueunit_descr) + str(generalunit_descr) + str(sec_att_descr) + str(apsec_descr) + str(accuracy_descr) + str(accuracy_buildings_descr) + str(accuracy_towers_descr) + str(range_descr) + str(ammo_descr) + str(rangeap_descr) + str(gunpowder_descr) + str(terrain_bonus_descr) + str(terrain_malus_descr) + (r"\\n")
+                if dummyline == True:
+                    dummy_text = "Description:\n\n"
+                changedline = "_descr}" + dummy_text + str(lockmorale_descr) + str(morale_descr) + str(morale_res_descr) + str(movespeed_descr) + str(freeupkeep_descr) + str(uniqueunit_descr) + str(generalunit_descr) + str(sec_att_descr) + str(apsec_descr) + str(accuracy_descr) + str(accuracy_buildings_descr) + str(accuracy_towers_descr) + str(range_descr) + str(ammo_descr) + str(rangeap_descr) + str(gunpowder_descr) + str(terrain_bonus_descr) + str(terrain_malus_descr) + (r"\\n")
                 print(changedline)
                 regexsub = re.sub(r'_descr\}', changedline, line)
                 #print(regexsub)
@@ -497,6 +501,7 @@ try:
 
             eduname = modpath + "\\data\\export_descr_unit.txt"
             dprojectilename = modpath + "\\data\\descr_projectile.txt"
+            dprojectilename_rome = modpath + "\\data\\descr_projectile_new.txt"
             euname = modpath + "\\data\\text\\export_units.txt"
             outputfilename = modpath + "\\data\\text\\export_units_new.txt"
             inputfilename = modpath + "\\data\\text\\export_units_cleaned.txt"
@@ -522,7 +527,10 @@ try:
 
             for i in encodings:
                 try:
-                    file_dprojectile = open(dprojectilename, encoding=i)
+                    if values['enablerome'] == True:
+                        file_dprojectile = open(dprojectilename_rome, encoding=i)
+                    else:
+                        file_dprojectile = open(dprojectilename, encoding=i)
                     file_dprojectile.readlines()
                     file_dprojectile.seek(0)
                     break
@@ -631,6 +639,8 @@ try:
                     inputfile.close()
                 movespeed_text = str(values['movespeedtext'])
                 enable_movespeed = bool(values['enablemovespeed'])
+                isrome = bool(values['enablerome'])
+                dummyline = bool(values['enabledummy'])
                 freeupkeep_text = str(values['freeupkeeptext'])
                 enable_freeupkeep = values['enablefreeupkeep']
                 uniqueunit_text = str(values['uniqueunittext'])
@@ -706,6 +716,8 @@ try:
                 moraledisciplined_text = str(values['moraledisciplinedtext'])
                 moraleimpetuous_text = str(values['moraleimpetuoustext'])
                 moraleberserker_text = str(values['moraleberserkertext'])
+                if isrome == True:
+                    file_dprojectile = open(dprojectilename_rome, encoding='utf8')
                 edu_missile_unit = 0
                 has_secondary = 0
                 unit_found = 0
